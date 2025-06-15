@@ -7,14 +7,15 @@ import org.apache.commons.compress.archivers.zip.ZipArchiveInputStream;
 import org.apache.commons.io.IOUtils;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.apache.poi.xssf.usermodel.XSSFFont;
 import org.mozilla.universalchardet.UniversalDetector;
 
 import java.io.*;
 import java.nio.charset.Charset;
-import java.util.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
-public class CsvZipToExcelBatch2 {
+public class CsvZipToExcelBatch3 {
 
     public static void main(String[] args) throws Exception {
         File zipFile = new File("src/main/java/me/hwangjoonsoung/automation/inputCSVZip/place.zip");
@@ -58,22 +59,28 @@ public class CsvZipToExcelBatch2 {
 
         for (String id : idSet) {
             File daily = new File(folder, "일별보고서," + id + ".csv");
+            File time = new File(folder, "요일별보고서," + id + ".csv");
             File outputFile = new File(outputDir, "12월_키워드보고서_" + id + ".xlsx");
 
             if (daily.exists()) {
-                processOneSet(daily, templatePath, outputFile);
+                processOneSet(daily, time, templatePath, outputFile);
             } else {
                 System.out.println("❌ 일별 파일 누락: " + id);
             }
         }
     }
 
-    public static void processOneSet(File dailyCsv, String templatePath, File outputFile) throws Exception {
+    public static void processOneSet(File dailyCsv, File timeCsv, String templatePath, File outputFile) throws Exception {
         FileInputStream fis = new FileInputStream(templatePath);
         Workbook workbook = new XSSFWorkbook(fis);
 
         Sheet dailySheet = workbook.getSheet("일자별");
         writeDailySheet(dailySheet, dailyCsv, workbook);
+
+        if (timeCsv.exists()) {
+            Sheet timeSheet = workbook.getSheet("시간별");
+            writeTimeSheet(timeSheet, timeCsv, workbook);
+        }
 
         try (FileOutputStream fos = new FileOutputStream(outputFile)) {
             workbook.write(fos);
@@ -83,6 +90,65 @@ public class CsvZipToExcelBatch2 {
         System.out.println("✅ 저장 완료: " + outputFile.getAbsolutePath());
     }
 
+    public static void writeTimeSheet(Sheet sheet, File csvFile, Workbook wb) throws IOException, CsvException {
+        String encoding = detectEncoding(csvFile);
+        try (CSVReader reader = new CSVReader(
+                new InputStreamReader(new FileInputStream(csvFile), Charset.forName(encoding)))) {
+
+            List<String[]> rows = reader.readAll();
+            int startRow = 60;  // Excel 기준 61행 (B열부터 시작)
+            int startCol = 1;   // Excel B열
+
+            DataFormat format = wb.createDataFormat();
+
+            CellStyle defaultStyle = wb.createCellStyle();
+            defaultStyle.setDataFormat(format.getFormat("#,##0"));
+            Font greenFont = wb.createFont();
+            greenFont.setColor(IndexedColors.GREEN.getIndex());
+            defaultStyle.setFont(greenFont);
+
+            CellStyle percentStyle = wb.createCellStyle();
+            percentStyle.setDataFormat(format.getFormat("0.00%"));
+            percentStyle.setFont(greenFont);
+
+            CellStyle floatStyle1 = wb.createCellStyle();
+            floatStyle1.setDataFormat(format.getFormat("0.0"));
+            floatStyle1.setFont(greenFont);
+
+            CellStyle floatStyle2 = wb.createCellStyle();
+            floatStyle2.setDataFormat(format.getFormat("#,##0.##"));
+            floatStyle2.setFont(greenFont);
+
+            for (int i = 2; i < rows.size(); i++) {
+                String[] row = rows.get(i);
+                Row excelRow = sheet.getRow(startRow);
+                if (excelRow == null) {
+                    excelRow = sheet.createRow(startRow);
+                }
+
+                for (int j = 0; j < 9; j++) {
+                    Cell cell = excelRow.createCell(startCol + j);
+                    String val = row[j].replace(",", "").trim();
+                    try {
+                        double num = Double.parseDouble(val);
+                        cell.setCellValue(num);
+                        // 열 인덱스에 따라 다른 스타일 적용
+                        if (j == 4) {
+                            cell.setCellStyle(floatStyle1); // 평균노출순위
+                        } else if (j == 5 || j == 6) {
+                            cell.setCellStyle(floatStyle2); // 평균클릭비용, 총비용
+                        } else {
+                            cell.setCellStyle(defaultStyle);
+                        }
+                    } catch (NumberFormatException e) {
+                        cell.setCellValue(val);
+                        cell.setCellStyle(defaultStyle);
+                    }
+                }
+                startRow++;
+            }
+        }
+    }
 
     public static void writeDailySheet(Sheet sheet, File csvFile, Workbook wb) throws IOException, CsvException {
         String encoding = detectEncoding(csvFile);
@@ -107,7 +173,6 @@ public class CsvZipToExcelBatch2 {
                 if (excelRow == null) {
                     excelRow = sheet.createRow(startRow);
                 } else {
-                    // 기존 셀 초기화 (덮어쓰기 위해)
                     for (int c = startCol; c < startCol + 9; c++) {
                         Cell cell = excelRow.getCell(c);
                         if (cell != null) cell.setBlank();
@@ -130,7 +195,6 @@ public class CsvZipToExcelBatch2 {
                 startRow++;
             }
 
-            // ▶️ 기존에 있던 남은 행 지우기
             int cleanupStartRow = startRow;
             int maxRows = sheet.getLastRowNum();
             for (int i = cleanupStartRow; i <= maxRows; i++) {
