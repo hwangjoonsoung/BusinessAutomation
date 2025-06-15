@@ -14,6 +14,9 @@ dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter'
     implementation 'org.apache.commons:commons-compress:1.26.1'
 
+    //인코딩 자동감지
+    implementation 'com.googlecode.juniversalchardet:juniversalchardet:1.0.3'
+
     // Apache POI
     implementation 'org.apache.poi:poi-ooxml:5.2.5'
 
