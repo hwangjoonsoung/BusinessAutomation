@@ -17,6 +17,7 @@ import java.nio.charset.Charset;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 // 일자별 요일별 파워링크까지 한번에 동작
 public class CsvZipToExcelBatch5 {
@@ -78,6 +79,7 @@ public class CsvZipToExcelBatch5 {
         String baseName = outputFile.getName().replace("12월_키워드보고서_", "").replace(".xlsx", "");
         File powerlinkCsv = new File("build/unzipped_place/파워링크보고서," + baseName + ".csv");
         File shoppingCsv = new File("build/unzipped_place/쇼핑검색보고서," + baseName + ".csv");
+        File placeCsv = new File("build/unzipped_place/플레이스보고서," + baseName + ".csv");
         FileInputStream fis = new FileInputStream(templatePath);
         Workbook workbook = new XSSFWorkbook(fis);
 
@@ -97,6 +99,10 @@ public class CsvZipToExcelBatch5 {
 
         if (shoppingCsv.exists()) {
             writeShoppingSheet(shoppingSheet, shoppingCsv, workbook);
+        }
+        if (placeCsv.exists()) {
+            Sheet placeSheet = workbook.getSheet("플레이스");
+            writePlaceSheet(placeSheet, placeCsv, workbook);
         }
 
         try (FileOutputStream fos = new FileOutputStream(outputFile)) {
@@ -274,7 +280,6 @@ public class CsvZipToExcelBatch5 {
     }
 
     public static void writeShoppingSheet(Sheet sheet, File csvFile, Workbook wb) throws IOException, CsvException {
-        System.out.println(csvFile.getName());
         String encoding = detectEncoding(csvFile);
 
         CSVParser parser = new CSVParserBuilder()
@@ -309,7 +314,6 @@ public class CsvZipToExcelBatch5 {
 
             for (int i = 2; i < rows.size(); i++) {
                 String[] row = rows.get(i);
-                System.out.println("row = " + row[1]);
                 if (row.length < 12) {
                     System.out.printf("⚠️ Skipping row at index %d: too short (length = %d)%n", i, row.length);
                     continue;
@@ -339,6 +343,74 @@ public class CsvZipToExcelBatch5 {
                         cell.setCellStyle(styleInt);
                     }
                 }
+                startRow++;
+            }
+        }
+    }
+
+    public static void writePlaceSheet(Sheet sheet, File csvFile, Workbook wb) throws IOException, CsvException {
+        System.out.println(csvFile.getName());
+        String encoding = detectEncoding(csvFile);
+
+        CSVParser parser = new CSVParserBuilder()
+                .withSeparator(',')         // CSV 구분자: 쉼표
+                .withQuoteChar('"')         // 인용문자: "
+                .withEscapeChar(CSVParser.NULL_CHARACTER) // ✅ 이스케이프 문자 제거
+                .build();
+
+        try (CSVReader reader = new CSVReaderBuilder(
+                new InputStreamReader(new FileInputStream(csvFile), Charset.forName(encoding)))
+                .withCSVParser(parser)
+                .build()) {
+
+            List<String[]> rows = reader.readAll();
+            int startRow = 28; // Excel 기준 29행
+            int startCol = 1;  // Excel C열 (index 1)
+
+            DataFormat format = wb.createDataFormat();
+            Font greenFont = wb.createFont();
+            greenFont.setColor(IndexedColors.GREEN.getIndex());
+
+            CellStyle styleInt = wb.createCellStyle();
+            styleInt.setDataFormat(format.getFormat("#,##0"));
+            styleInt.setFont(greenFont);
+
+            CellStyle styleFloat1 = wb.createCellStyle();
+            styleFloat1.setDataFormat(format.getFormat("0.0"));
+            styleFloat1.setFont(greenFont);
+
+            for (int i = 2; i < rows.size(); i++) {
+                String[] row = rows.get(i);
+
+                if (row.length < 10) {
+                    System.out.printf("⚠️ Skipping row at index %d: too short (length = %d)%n", i, row.length);
+                    continue;
+                }
+
+                String campaign = row[0].replaceAll("\"", "").trim();
+                if (!"플레이스".equals(campaign)) continue;
+
+                Row excelRow = sheet.getRow(startRow);
+                if (excelRow == null) excelRow = sheet.createRow(startRow);
+
+                for (int j = 0; j < 10; j++) {
+                    Cell cell = excelRow.createCell(startCol + j);
+                    String val = row[j].replace(",", "").trim();
+
+                    try {
+                        double num = Double.parseDouble(val);
+                        cell.setCellValue(num);
+                        if (j == 10) {
+                            cell.setCellStyle(styleFloat1); // 평균노출순위
+                        } else {
+                            cell.setCellStyle(styleInt);
+                        }
+                    } catch (NumberFormatException e) {
+                        cell.setCellValue(val);
+                        cell.setCellStyle(styleInt);
+                    }
+                }
+
                 startRow++;
             }
         }
