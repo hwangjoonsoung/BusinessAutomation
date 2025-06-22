@@ -278,9 +278,9 @@ public class CsvZipToExcelBatch5 {
         String encoding = detectEncoding(csvFile);
 
         CSVParser parser = new CSVParserBuilder()
-                .withSeparator(',') // ✅ 쉼표로 변경
-                .withQuoteChar('"')
-                .withEscapeChar('\\')
+                .withSeparator(',')         // CSV 구분자: 쉼표
+                .withQuoteChar('"')         // 인용문자: "
+                .withEscapeChar(CSVParser.NULL_CHARACTER) // ✅ 이스케이프 문자 제거
                 .build();
 
         try (CSVReader reader = new CSVReaderBuilder(new InputStreamReader(new FileInputStream(csvFile), Charset.forName(encoding)))
