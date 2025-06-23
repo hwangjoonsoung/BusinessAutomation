@@ -17,10 +17,9 @@ import java.nio.charset.Charset;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 // 일자별 요일별 파워링크까지 한번에 동작
-public class CsvZipToExcelBatch5 {
+public class CsvZipToExcelBatch6 {
 
     public static void main(String[] args) throws Exception {
         File zipFile = new File("src/main/java/me/hwangjoonsoung/automation/inputCSVZip/archives.zip");
@@ -87,23 +86,23 @@ public class CsvZipToExcelBatch5 {
         Sheet shoppingSheet = workbook.getSheet("쇼핑검색");
         writeDailySheet(dailySheet, dailyCsv, workbook);
 
-        if (timeCsv.exists()) {
-            Sheet timeSheet = workbook.getSheet("시간별");
-            writeTimeSheet(timeSheet, timeCsv, workbook);
-        }
-
-        if (powerlinkCsv.exists()) {
-            Sheet powerlinkSheet = workbook.getSheet("파워링크");
-            writePowerlinkSheet(powerlinkSheet, powerlinkCsv, workbook);
-        }
-
-        if (shoppingCsv.exists()) {
-            writeShoppingSheet(shoppingSheet, shoppingCsv, workbook);
-        }
-        if (placeCsv.exists()) {
-            Sheet placeSheet = workbook.getSheet("플레이스");
-            writePlaceSheet(placeSheet, placeCsv, workbook);
-        }
+//        if (timeCsv.exists()) {
+//            Sheet timeSheet = workbook.getSheet("시간별");
+//            writeTimeSheet(timeSheet, timeCsv, workbook);
+//        }
+//
+//        if (powerlinkCsv.exists()) {
+//            Sheet powerlinkSheet = workbook.getSheet("파워링크");
+//            writePowerlinkSheet(powerlinkSheet, powerlinkCsv, workbook);
+//        }
+//
+//        if (shoppingCsv.exists()) {
+//            writeShoppingSheet(shoppingSheet, shoppingCsv, workbook);
+//        }
+//        if (placeCsv.exists()) {
+//            Sheet placeSheet = workbook.getSheet("플레이스");
+//            writePlaceSheet(placeSheet, placeCsv, workbook);
+//        }
 
         try (FileOutputStream fos = new FileOutputStream(outputFile)) {
             workbook.write(fos);
@@ -225,51 +224,65 @@ public class CsvZipToExcelBatch5 {
         }
     }
 
+
     public static void writeDailySheet(Sheet sheet, File csvFile, Workbook wb) throws IOException, CsvException {
         String encoding = detectEncoding(csvFile);
         try (CSVReader reader = new CSVReader(
                 new InputStreamReader(new FileInputStream(csvFile), Charset.forName(encoding)))) {
 
             List<String[]> rows = reader.readAll();
-            int startRow = 28;  // Excel 기준 29행 (AO)
-            int startCol = 40;  // Excel 기준 41열 (AO)
+            int startRow = 28;  // Excel 기준 29행
+            int startCol = 40;  // Excel 기준 AO열 (41열 → index 40)
 
-            CellStyle numberStyle = wb.createCellStyle();
+            // 스타일 정의
             DataFormat format = wb.createDataFormat();
-            numberStyle.setDataFormat(format.getFormat("#,##0"));
+            Font defaultFont = wb.createFont();  // 기본 글꼴
+            CellStyle textStyle = wb.createCellStyle();
+            textStyle.setFont(defaultFont);
+            textStyle.setAlignment(HorizontalAlignment.LEFT);
 
-            Font greenFont = wb.createFont();
-            greenFont.setColor(IndexedColors.GREEN.getIndex());
-            numberStyle.setFont(greenFont);
+            CellStyle intStyle = wb.createCellStyle();
+            intStyle.setDataFormat(format.getFormat("#,##0"));
+            intStyle.setFont(defaultFont);
+            intStyle.setAlignment(HorizontalAlignment.LEFT);
 
-            for (int i = 2; i < rows.size(); i++) { // 3행부터 데이터 시작
+            CellStyle floatStyle2 = wb.createCellStyle();
+            floatStyle2.setDataFormat(format.getFormat("0.00"));
+            floatStyle2.setFont(defaultFont);
+            floatStyle2.setAlignment(HorizontalAlignment.LEFT);
+
+            CellStyle commaFloatStyle = wb.createCellStyle();
+            commaFloatStyle.setDataFormat(format.getFormat("#,##0.00"));
+            commaFloatStyle.setFont(defaultFont);
+            commaFloatStyle.setAlignment(HorizontalAlignment.LEFT);
+
+            for (int i = 2; i < rows.size(); i++) {
                 String[] row = rows.get(i);
                 Row excelRow = sheet.getRow(startRow);
-                if (excelRow == null) {
-                    excelRow = sheet.createRow(startRow);
-                } else {
-                    for (int c = startCol; c < startCol + 9; c++) {
-                        Cell cell = excelRow.getCell(c);
-                        if (cell != null) cell.setBlank();
-                    }
-                }
+                if (excelRow == null) excelRow = sheet.createRow(startRow);
 
                 for (int j = 0; j < 9; j++) {
                     Cell cell = excelRow.createCell(startCol + j);
                     String val = row[j].replace(",", "").trim();
-
                     try {
                         double num = Double.parseDouble(val);
                         cell.setCellValue(num);
-                        cell.setCellStyle(numberStyle);
+                        if (j == 4) {
+                            cell.setCellStyle(floatStyle2);          // 클릭률(%) → 0.00
+                        } else if (j == 6) {
+                            cell.setCellStyle(commaFloatStyle);      // 총비용 → #,##0.00
+                        } else {
+                            cell.setCellStyle(intStyle);             // 일반 정수
+                        }
                     } catch (NumberFormatException e) {
-                        cell.setCellValue(val);
-                        cell.setCellStyle(numberStyle);
+                        cell.setCellValue(val);                      // 텍스트 처리
+                        cell.setCellStyle(textStyle);
                     }
                 }
                 startRow++;
             }
 
+            // 필요 없는 남은 행 제거
             int cleanupStartRow = startRow;
             int maxRows = sheet.getLastRowNum();
             for (int i = cleanupStartRow; i <= maxRows; i++) {
@@ -278,6 +291,7 @@ public class CsvZipToExcelBatch5 {
             }
         }
     }
+
 
     public static void writeShoppingSheet(Sheet sheet, File csvFile, Workbook wb) throws IOException, CsvException {
         String encoding = detectEncoding(csvFile);
