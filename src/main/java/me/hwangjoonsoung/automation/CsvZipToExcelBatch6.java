@@ -84,25 +84,37 @@ public class CsvZipToExcelBatch6 {
 
         Sheet dailySheet = workbook.getSheet("일자별");
         Sheet shoppingSheet = workbook.getSheet("쇼핑검색");
+
+        //todo: A행에 날짜가 생긴다는 문제
+        //todo: B행에 날짜의 서식이 이상하는 문제
+        //todo: C행이 B행에 날짜가 이상해서 요일이 안들어가는 문제
+        //todo: 글짜색 변경해야 함.
         writeDailySheet(dailySheet, dailyCsv, workbook);
 
-//        if (timeCsv.exists()) {
-//            Sheet timeSheet = workbook.getSheet("시간별");
-//            writeTimeSheet(timeSheet, timeCsv, workbook);
-//        }
-//
-//        if (powerlinkCsv.exists()) {
-//            Sheet powerlinkSheet = workbook.getSheet("파워링크");
-//            writePowerlinkSheet(powerlinkSheet, powerlinkCsv, workbook);
-//        }
-//
-//        if (shoppingCsv.exists()) {
-//            writeShoppingSheet(shoppingSheet, shoppingCsv, workbook);
-//        }
-//        if (placeCsv.exists()) {
-//            Sheet placeSheet = workbook.getSheet("플레이스");
-//            writePlaceSheet(placeSheet, placeCsv, workbook);
-//        }
+        //todo: 시간별시트 작업하는 경우 카테고리 시트의 색이 변함.
+        if (timeCsv.exists()) {
+            Sheet timeSheet = workbook.getSheet("시간별");
+            writeTimeSheet(timeSheet, timeCsv, workbook);
+        }
+
+        //done
+        if (powerlinkCsv.exists()) {
+            Sheet powerlinkSheet = workbook.getSheet("파워링크");
+            writePowerlinkSheet(powerlinkSheet, powerlinkCsv, workbook);
+        }
+
+        //todo: 데이터 서식이 %로 들어감
+        //todo: 배경이 붉은색으로 들어감
+        if (shoppingCsv.exists()) {
+            writeShoppingSheet(shoppingSheet, shoppingCsv, workbook);
+        }
+
+        //todo: 배경이 붉은색으로 들어감
+        //todo: 데이터가 -0으로 들어가는 케이스가 있음
+        if (placeCsv.exists()) {
+            Sheet placeSheet = workbook.getSheet("플레이스");
+            writePlaceSheet(placeSheet, placeCsv, workbook);
+        }
 
         try (FileOutputStream fos = new FileOutputStream(outputFile)) {
             workbook.write(fos);
@@ -141,6 +153,10 @@ public class CsvZipToExcelBatch6 {
             floatStyle2.setDataFormat(format.getFormat("#,##0.##"));
             floatStyle2.setFont(greenFont);
 
+            CellStyle generalStyle = wb.createCellStyle();
+            DataFormat generalFormat = wb.createDataFormat();
+            generalStyle.setDataFormat(generalFormat.getFormat("General"));
+
             for (int i = 2; i < rows.size(); i++) {
                 String[] row = rows.get(i);
                 Row excelRow = sheet.getRow(startRow);
@@ -154,14 +170,15 @@ public class CsvZipToExcelBatch6 {
                     try {
                         double num = Double.parseDouble(val);
                         cell.setCellValue(num);
+                        cell.setCellStyle(generalStyle);
                         // 열 인덱스에 따라 다른 스타일 적용
-                        if (j == 4) {
-                            cell.setCellStyle(floatStyle1); // 평균노출순위
-                        } else if (j == 5 || j == 6) {
-                            cell.setCellStyle(floatStyle2); // 평균클릭비용, 총비용
-                        } else {
-                            cell.setCellStyle(defaultStyle);
-                        }
+//                        if (j == 4) {
+//                            cell.setCellStyle(generalStyle); // 평균노출순위
+//                        } else if (j == 5 || j == 6) {
+//                            cell.setCellStyle(generalStyle); // 평균클릭비용, 총비용
+//                        } else {
+//                            cell.setCellStyle(generalStyle);
+//                        }
                     } catch (NumberFormatException e) {
                         cell.setCellValue(val);
                         cell.setCellStyle(defaultStyle);
@@ -194,26 +211,31 @@ public class CsvZipToExcelBatch6 {
             floatStyle2.setDataFormat(format.getFormat("#,##0.00"));
             floatStyle2.setFont(greenFont);
 
+            CellStyle generalStyle = wb.createCellStyle();
+            DataFormat generalFormat = wb.createDataFormat();
+            generalStyle.setDataFormat(generalFormat.getFormat("General"));
+
             for (int i = 2; i < rows.size(); i++) {  // 6행부터 시작
                 String[] row = rows.get(i);
                 Row excelRow = sheet.getRow(startRow);
                 if (excelRow == null) excelRow = sheet.createRow(startRow);
 
-                for (int j = 3; j <= 12; j++) {
+                for (int j = 3; j <= 13; j++) {
                     Cell cell = excelRow.createCell(startCol + (j - 3));
                     String val = row[j].replace(",", "").trim();
                     try {
                         double num = Double.parseDouble(val);
                         cell.setCellValue(num);
-                        if (j == 6 || j == 7) {
-                            cell.setCellStyle(floatStyle2);  // 클릭률, 클릭비용
-                        } else if (j == 8) {
-                            cell.setCellStyle(floatStyle2);  // 총비용
-                        } else if (j == 9) {
-                            cell.setCellStyle(floatStyle1);  // 평균노출순위
-                        } else {
-                            cell.setCellStyle(defaultStyle);
-                        }
+                        cell.setCellStyle(generalStyle);
+//                        if (j == 6 || j == 7) {
+//                            cell.setCellStyle(floatStyle2);  // 클릭률, 클릭비용
+//                        } else if (j == 8) {
+//                            cell.setCellStyle(floatStyle2);  // 총비용
+//                        } else if (j == 9) {
+//                            cell.setCellStyle(floatStyle1);  // 평균노출순위
+//                        } else {
+//                            cell.setCellStyle(defaultStyle);
+//                        }
                     } catch (NumberFormatException e) {
                         cell.setCellValue(val);
                         cell.setCellStyle(defaultStyle);
@@ -256,6 +278,10 @@ public class CsvZipToExcelBatch6 {
             commaFloatStyle.setFont(defaultFont);
             commaFloatStyle.setAlignment(HorizontalAlignment.LEFT);
 
+            CellStyle generalStyle = wb.createCellStyle();
+            DataFormat generalFormat = wb.createDataFormat();
+            generalStyle.setDataFormat(generalFormat.getFormat("General"));
+
             for (int i = 2; i < rows.size(); i++) {
                 String[] row = rows.get(i);
                 Row excelRow = sheet.getRow(startRow);
@@ -267,13 +293,14 @@ public class CsvZipToExcelBatch6 {
                     try {
                         double num = Double.parseDouble(val);
                         cell.setCellValue(num);
-                        if (j == 4) {
-                            cell.setCellStyle(floatStyle2);          // 클릭률(%) → 0.00
-                        } else if (j == 6) {
-                            cell.setCellStyle(commaFloatStyle);      // 총비용 → #,##0.00
-                        } else {
-                            cell.setCellStyle(intStyle);             // 일반 정수
-                        }
+                        cell.setCellStyle(generalStyle);
+//                        if (j == 4) {
+//                            cell.setCellStyle(generalStyle);          // 클릭률(%) → 0.00
+//                        } else if (j == 6) {
+//                            cell.setCellStyle(generalStyle);      // 총비용 → #,##0.00
+//                        } else {
+//                            cell.setCellStyle(generalStyle);             // 일반 정수
+//                        }
                     } catch (NumberFormatException e) {
                         cell.setCellValue(val);                      // 텍스트 처리
                         cell.setCellStyle(textStyle);
@@ -317,6 +344,7 @@ public class CsvZipToExcelBatch6 {
             CellStyle styleInt = wb.createCellStyle();
             styleInt.setDataFormat(format.getFormat("#,##0"));
             styleInt.setFont(greenFont);
+            styleInt.setFillPattern(FillPatternType.NO_FILL);
 
             CellStyle styleFloat1 = wb.createCellStyle();
             styleFloat1.setDataFormat(format.getFormat("0.0"));
@@ -325,6 +353,11 @@ public class CsvZipToExcelBatch6 {
             CellStyle styleFloat2 = wb.createCellStyle();
             styleFloat2.setDataFormat(format.getFormat("#,##0.00"));
             styleFloat2.setFont(greenFont);
+
+            CellStyle generalStyle = wb.createCellStyle();
+            DataFormat generalFormat = wb.createDataFormat();
+            generalStyle.setDataFormat(generalFormat.getFormat("General"));
+            generalStyle.setFillPattern(FillPatternType.NO_FILL);
 
             for (int i = 2; i < rows.size(); i++) {
                 String[] row = rows.get(i);
@@ -343,18 +376,19 @@ public class CsvZipToExcelBatch6 {
                     try {
                         double num = Double.parseDouble(val);
                         cell.setCellValue(num);
-                        if (j == 6 || j == 7) {
-                            cell.setCellStyle(styleFloat2);
-                        } else if (j == 8) {
-                            cell.setCellStyle(styleFloat1);
-                        } else if (j == 9 || j == 10) {
-                            cell.setCellStyle(styleFloat2);
-                        } else {
-                            cell.setCellStyle(styleInt);
-                        }
+                        cell.setCellStyle(generalStyle);
+//                        if (j == 6 || j == 7) {
+//                            cell.setCellStyle(styleFloat2);
+//                        } else if (j == 8) {
+//                            cell.setCellStyle(styleFloat1);
+//                        } else if (j == 9 || j == 10) {
+//                            cell.setCellStyle(styleFloat2);
+//                        } else {
+//                            cell.setCellStyle(styleInt);
+//                        }
                     } catch (NumberFormatException e) {
                         cell.setCellValue(val);
-                        cell.setCellStyle(styleInt);
+                        cell.setCellStyle(generalStyle);
                     }
                 }
                 startRow++;
@@ -388,10 +422,16 @@ public class CsvZipToExcelBatch6 {
             CellStyle styleInt = wb.createCellStyle();
             styleInt.setDataFormat(format.getFormat("#,##0"));
             styleInt.setFont(greenFont);
+            styleInt.setFillPattern(FillPatternType.NO_FILL);
 
             CellStyle styleFloat1 = wb.createCellStyle();
             styleFloat1.setDataFormat(format.getFormat("0.0"));
             styleFloat1.setFont(greenFont);
+
+            CellStyle generalStyle = wb.createCellStyle();
+            DataFormat generalFormat = wb.createDataFormat();
+            generalStyle.setDataFormat(generalFormat.getFormat("General"));
+            generalStyle.setFillPattern(FillPatternType.NO_FILL);
 
             for (int i = 2; i < rows.size(); i++) {
                 String[] row = rows.get(i);
@@ -414,11 +454,12 @@ public class CsvZipToExcelBatch6 {
                     try {
                         double num = Double.parseDouble(val);
                         cell.setCellValue(num);
-                        if (j == 10) {
-                            cell.setCellStyle(styleFloat1); // 평균노출순위
-                        } else {
-                            cell.setCellStyle(styleInt);
-                        }
+                        cell.setCellStyle(generalStyle);
+//                        if (j == 10) {
+//                            cell.setCellStyle(styleFloat1); // 평균노출순위
+//                        } else {
+//                            cell.setCellStyle(styleInt);
+//                        }
                     } catch (NumberFormatException e) {
                         cell.setCellValue(val);
                         cell.setCellStyle(styleInt);
