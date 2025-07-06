@@ -55,8 +55,8 @@ public class CsvZipToExcelBatch7 {
         Set<String> idSet = new HashSet<>();
         for (File f : files) {
             String name = f.getName();
-            if (name.startsWith("파워링크보고서,")) {
-                String id = name.replace("파워링크보고서,", "").replace(".csv", "");
+            if (name.startsWith("일별보고서,")) {
+                String id = name.replace("일별보고서,", "").replace(".csv", "");
                 idSet.add(id);
             }
         }
@@ -83,27 +83,38 @@ public class CsvZipToExcelBatch7 {
         Workbook workbook = new XSSFWorkbook(fis);
 
         Sheet dailySheet = workbook.getSheet("일자별");
-        Sheet shoppingSheet = workbook.getSheet("쇼핑검색");
-
         writeDailySheet(dailySheet, dailyCsv, workbook);
 
-       if (timeCsv.exists()) {
+        if (timeCsv.exists()) {
             Sheet timeSheet = workbook.getSheet("시간별");
             writeTimeSheet(timeSheet, timeCsv, workbook);
+        } else {
+            Sheet timeSheet = workbook.getSheet("시간별");
+            if (timeSheet != null) workbook.removeSheetAt(workbook.getSheetIndex(timeSheet));
         }
 
         if (powerlinkCsv.exists()) {
             Sheet powerlinkSheet = workbook.getSheet("파워링크");
             writePowerlinkSheet(powerlinkSheet, powerlinkCsv, workbook);
+        } else {
+            Sheet powerlinkSheet = workbook.getSheet("파워링크");
+            if (powerlinkSheet != null) workbook.removeSheetAt(workbook.getSheetIndex(powerlinkSheet));
         }
 
         if (shoppingCsv.exists()) {
+            Sheet shoppingSheet = workbook.getSheet("쇼핑검색");
             writeShoppingSheet(shoppingSheet, shoppingCsv, workbook);
+        } else {
+            Sheet shoppingSheet = workbook.getSheet("쇼핑검색");
+            if (shoppingSheet != null) workbook.removeSheetAt(workbook.getSheetIndex(shoppingSheet));
         }
 
         if (placeCsv.exists()) {
             Sheet placeSheet = workbook.getSheet("플레이스");
             writePlaceSheet(placeSheet, placeCsv, workbook);
+        } else {
+            Sheet placeSheet = workbook.getSheet("플레이스");
+            if (placeSheet != null) workbook.removeSheetAt(workbook.getSheetIndex(placeSheet));
         }
 
         try (FileOutputStream fos = new FileOutputStream(outputFile)) {
