@@ -116,6 +116,7 @@ public class CsvZipToExcelBatch7 {
             Sheet placeSheet = workbook.getSheet("플레이스");
             if (placeSheet != null) workbook.removeSheetAt(workbook.getSheetIndex(placeSheet));
         }
+        writeCoverSheet(workbook, baseName);
 
         try (FileOutputStream fos = new FileOutputStream(outputFile)) {
             workbook.write(fos);
@@ -123,6 +124,28 @@ public class CsvZipToExcelBatch7 {
 
         workbook.close();
         System.out.println("✅ 저장 완료: " + outputFile.getAbsolutePath());
+    }
+
+    public static void writeCoverSheet(Workbook wb, String baseName) {
+        Sheet coverSheet = wb.getSheet("표지");
+        if (coverSheet == null) {
+            System.out.println("⚠️ 표지 시트가 존재하지 않습니다.");
+            return;
+        }
+
+        // C4 셀 위치는 (row 3, column 2) → 0-based index
+        Row row = coverSheet.getRow(3);
+        if (row == null) {
+            row = coverSheet.createRow(3);
+        }
+
+        Cell cell = row.getCell(2);
+        if (cell == null) {
+            cell = row.createCell(2);
+        }
+
+        cell.setCellValue(baseName);
+        System.out.println("baseName = " + baseName);
     }
 
     public static void writeDailySheet(Sheet sheet, File csvFile, Workbook wb) throws IOException, CsvException {
