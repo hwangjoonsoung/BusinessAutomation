@@ -24,7 +24,7 @@ public class CsvZipToExcelBatch7 {
     public static void main(String[] args) throws Exception {
         File zipFile = new File("src/main/java/me/hwangjoonsoung/automation/inputCSVZip/archives.zip");
         File unzipDir = new File("build/unzipped_place");
-        File templateFile = new File("src/main/java/me/hwangjoonsoung/automation/basedExcelFile/12월 키워드보고서.xlsx");
+        File templateFile = new File("src/main/java/me/hwangjoonsoung/automation/basedExcelFile/12월 키워드보고서.xlsm");
         File outputDir = new File("build/output_place");
 
         if (!outputDir.exists()) outputDir.mkdirs();
@@ -64,7 +64,7 @@ public class CsvZipToExcelBatch7 {
         for (String id : idSet) {
             File daily = new File(folder, "일별보고서," + id + ".csv");
             File time = new File(folder, "요일별보고서," + id + ".csv");
-            File outputFile = new File(outputDir, "12월_키워드보고서_" + id + ".xlsx");
+            File outputFile = new File(outputDir, "12월_키워드보고서_" + id + ".xlsm");
 
             if (daily.exists()) {
                 processOneSet(daily, time, templatePath, outputFile);
@@ -75,7 +75,7 @@ public class CsvZipToExcelBatch7 {
     }
 
     public static void processOneSet(File dailyCsv, File timeCsv, String templatePath, File outputFile) throws Exception {
-        String baseName = outputFile.getName().replace("12월_키워드보고서_", "").replace(".xlsx", "");
+        String baseName = outputFile.getName().replace("12월_키워드보고서_", "").replace(".xlsm", "");
         File powerlinkCsv = new File("build/unzipped_place/파워링크보고서," + baseName + ".csv");
         File shoppingCsv = new File("build/unzipped_place/쇼핑검색보고서," + baseName + ".csv");
         File placeCsv = new File("build/unzipped_place/플레이스보고서," + baseName + ".csv");
@@ -258,7 +258,6 @@ public class CsvZipToExcelBatch7 {
                     try {
                         cell.setCellValue(Double.parseDouble(val.replace(",", "")));
                     } catch (NumberFormatException e) {
-                        System.out.println(val+" : "+ e);
                         cell.setCellValue(val);  // 원본 텍스트 그대로
                     }
 
