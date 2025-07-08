@@ -7,6 +7,7 @@ import com.opencsv.CSVReaderBuilder;
 import com.opencsv.exceptions.CsvException;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipArchiveInputStream;
+import org.apache.commons.compress.harmony.pack200.NewAttribute;
 import org.apache.commons.io.IOUtils;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -14,23 +15,25 @@ import org.mozilla.universalchardet.UniversalDetector;
 
 import java.io.*;
 import java.nio.charset.Charset;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 // 일자별 요일별 파워링크까지 한번에 동작
 public class CsvZipToExcelBatch7 {
 
+    static LinkedHashSet linkedHashSet = new LinkedHashSet();
+
     public static void main(String[] args) throws Exception {
         File zipFile = new File("src/main/java/me/hwangjoonsoung/automation/inputCSVZip/archives.zip");
         File unzipDir = new File("build/unzipped_place");
-        File templateFile = new File("src/main/java/me/hwangjoonsoung/automation/basedExcelFile/12월 키워드보고서.xlsm");
+        File templateFile = new File("src/main/java/me/hwangjoonsoung/automation/basedExcelFile/06월 키워드보고서.xlsm");
         File outputDir = new File("build/output_place");
 
         if (!outputDir.exists()) outputDir.mkdirs();
 
         extractZip(zipFile, unzipDir);
         processAllCsvSet(unzipDir, templateFile.getAbsolutePath(), outputDir);
+
+        System.out.println("===========================================\n뭔가 이상한 파일들 : " + linkedHashSet);
     }
 
     public static void extractZip(File zipFile, File destDir) throws IOException {
@@ -64,8 +67,11 @@ public class CsvZipToExcelBatch7 {
         for (String id : idSet) {
             File daily = new File(folder, "일별보고서," + id + ".csv");
             File time = new File(folder, "요일별보고서," + id + ".csv");
-            File outputFile = new File(outputDir, "12월_키워드보고서_" + id + ".xlsm");
+            File outputFile = new File(outputDir, "06월_키워드보고서_" + id + ".xlsm");
 
+//            if(!id.equals("bogangwood_naver")){
+//                continue;
+//            }
             if (daily.exists()) {
                 processOneSet(daily, time, templatePath, outputFile);
             } else {
@@ -75,7 +81,7 @@ public class CsvZipToExcelBatch7 {
     }
 
     public static void processOneSet(File dailyCsv, File timeCsv, String templatePath, File outputFile) throws Exception {
-        String baseName = outputFile.getName().replace("12월_키워드보고서_", "").replace(".xlsm", "");
+        String baseName = outputFile.getName().replace("06월_키워드보고서_", "").replace(".xlsm", "");
         File powerlinkCsv = new File("build/unzipped_place/파워링크보고서," + baseName + ".csv");
         File shoppingCsv = new File("build/unzipped_place/쇼핑검색보고서," + baseName + ".csv");
         File placeCsv = new File("build/unzipped_place/플레이스보고서," + baseName + ".csv");
@@ -123,7 +129,7 @@ public class CsvZipToExcelBatch7 {
         }
 
         workbook.close();
-        System.out.println("✅ 저장 완료: " + outputFile.getAbsolutePath());
+        System.out.println("✅ 작업완료 완료: " + outputFile.getAbsolutePath());
     }
 
     public static void writeCoverSheet(Workbook wb, String baseName) {
@@ -145,10 +151,10 @@ public class CsvZipToExcelBatch7 {
         }
 
         cell.setCellValue(baseName);
-        System.out.println("baseName = " + baseName);
     }
 
     public static void writeDailySheet(Sheet sheet, File csvFile, Workbook wb) throws IOException, CsvException {
+        System.out.println("일자별 작업중 csv file name = " + csvFile);
         String encoding = detectEncoding(csvFile);
         try (CSVReader reader = new CSVReader(
                 new InputStreamReader(new FileInputStream(csvFile), Charset.forName(encoding)))) {
@@ -156,6 +162,8 @@ public class CsvZipToExcelBatch7 {
             List<String[]> rows = reader.readAll();
             int startRow = 28;
             int startCol = 40;
+            String csvValue = "";
+            boolean isSomethingWrongFile = false;
 
             for (int i = 2; i < rows.size(); i++) {
                 String[] row = rows.get(i);
@@ -164,7 +172,16 @@ public class CsvZipToExcelBatch7 {
 
                 for (int j = 0; j < 9; j++) {
                     Cell cell = excelRow.createCell(startCol + j);
-                    String val = row[j].trim();
+
+                    if (row.length < 9 && j >= row.length) {
+                        if(!isSomethingWrongFile){
+                            linkedHashSet.add(csvFile.getName());
+                        }
+                        csvValue = "0";
+                    } else {
+                        csvValue = row[j];
+                    }
+                    String val = csvValue.trim();
 
                     try {
                         // 숫자 입력 시 숫자로 넣되, 스타일은 지정하지 않음
@@ -180,6 +197,7 @@ public class CsvZipToExcelBatch7 {
     }
 
     public static void writeTimeSheet(Sheet sheet, File csvFile, Workbook wb) throws IOException, CsvException {
+        System.out.println("요일별 작업중 csv file name = " + csvFile);
         String encoding = detectEncoding(csvFile);
         try (CSVReader reader = new CSVReader(
                 new InputStreamReader(new FileInputStream(csvFile), Charset.forName(encoding)))) {
@@ -197,6 +215,8 @@ public class CsvZipToExcelBatch7 {
             // 회계 서식
             CellStyle accountingStyle = wb.createCellStyle();
             accountingStyle.setDataFormat((short) 44);
+            String csvValue = "";
+            boolean isSomethingWrongFile = false;
 
             for (int i = 2; i < rows.size(); i++) {
                 String[] row = rows.get(i);
@@ -207,7 +227,18 @@ public class CsvZipToExcelBatch7 {
 
                 for (int j = 0; j < 9; j++) {
                     Cell cell = excelRow.createCell(startCol + j);
-                    String val = row[j].trim();
+
+                    //row의 크기가 가변적이여서 0으로 처리
+                    if (row.length < 9 && j >= row.length) {
+                        if(!isSomethingWrongFile){
+                            linkedHashSet.add(csvFile.getName());
+                        }
+                        csvValue = "0";
+                    } else {
+                        csvValue = row[j];
+                    }
+                    String val = csvValue.trim();
+
                     try {
                         cell.setCellValue(Double.parseDouble(val.replace(",", "")));
                     } catch (NumberFormatException e) {
@@ -220,6 +251,7 @@ public class CsvZipToExcelBatch7 {
     }
 
     public static void writePowerlinkSheet(Sheet sheet, File csvFile, Workbook wb) throws IOException, CsvException {
+        System.out.println("파워링크 작업중 csv file name = " + csvFile);
         String encoding = detectEncoding(csvFile);
         try (CSVReader reader = new CSVReader(new InputStreamReader(new FileInputStream(csvFile), Charset.forName(encoding)))) {
             List<String[]> rows = reader.readAll();
@@ -235,6 +267,8 @@ public class CsvZipToExcelBatch7 {
             // 회계 서식
             CellStyle accountingStyle = wb.createCellStyle();
             accountingStyle.setDataFormat((short) 44);
+            String csvValue = "";
+            boolean isSomethingWrongFile = false;
 
             for (int i = 2; i < rows.size(); i++) {  // 6행부터 시작
                 String[] row = rows.get(i);
@@ -244,8 +278,20 @@ public class CsvZipToExcelBatch7 {
                 }
 
                 for (int j = 3; j <= 13; j++) {
-                    Cell cell = excelRow.createCell(startCol + (j -3));
-                    String val = row[j].trim();
+                    Cell cell = excelRow.createCell(startCol + (j - 3));
+
+                    //row의 크기가 가변적이여서 0으로 처리
+                    if (row.length < 13 && j >= row.length) {
+
+                        if(!isSomethingWrongFile){
+                            linkedHashSet.add(csvFile.getName());
+                        }
+                        csvValue = "0";
+                    } else {
+                        csvValue = row[j];
+                    }
+                    String val = csvValue.trim();
+
                     try {
                         cell.setCellValue(Double.parseDouble(val.replace(",", "")));
                     } catch (NumberFormatException e) {
@@ -258,6 +304,7 @@ public class CsvZipToExcelBatch7 {
     }
 
     public static void writeShoppingSheet(Sheet sheet, File csvFile, Workbook wb) throws IOException, CsvException {
+        System.out.println("쇼핑시트 작업중 csv file name = " + csvFile);
         String encoding = detectEncoding(csvFile);
 
         CSVParser parser = new CSVParserBuilder()
@@ -273,21 +320,31 @@ public class CsvZipToExcelBatch7 {
             List<String[]> rows = reader.readAll();
             int startRow = 28; // Excel 기준 29행
             int startCol = 1;  // Excel B열
+            String csvValue = "";
+            boolean isSomethingWrongFile = false;
 
             for (int i = 2; i < rows.size(); i++) {
                 String[] row = rows.get(i);
-                if (row.length < 12) {
-                    System.out.printf("⚠️"+csvFile.getName()+"파일 ⚠️ Skipping row at index %d: too short (length = %d)%n", i, row.length);
-                    continue;
-                }
                 if (!"쇼핑검색".equals(row[0])) continue;
 
                 Row excelRow = sheet.getRow(startRow);
                 if (excelRow == null) excelRow = sheet.createRow(startRow);
 
                 for (int j = 1; j <= 11; j++) {
-                    Cell cell = excelRow.createCell(startCol + (j-1));
-                    String val = row[j].replace(",", "").trim();
+                    Cell cell = excelRow.createCell(startCol + (j - 1));
+
+                    //row의 크기가 가변적이여서 0으로 처리
+                    if (row.length < 11 && j >= row.length) {
+
+                        if(!isSomethingWrongFile){
+                            linkedHashSet.add(csvFile.getName());
+                        }
+                        csvValue = "0";
+                    } else {
+                        csvValue = row[j];
+                    }
+                    String val = csvValue.replace(",", "").trim();
+
                     try {
                         cell.setCellValue(Double.parseDouble(val.replace(",", "")));
                     } catch (NumberFormatException e) {
@@ -301,7 +358,7 @@ public class CsvZipToExcelBatch7 {
     }
 
     public static void writePlaceSheet(Sheet sheet, File csvFile, Workbook wb) throws IOException, CsvException {
-//        System.out.println("플레이스 보고서 작성중---"+csvFile.getName()+"---파일");
+        System.out.println("플레이스 작업중 csv file name = " + csvFile);
         String encoding = detectEncoding(csvFile);
 
         CSVParser parser = new CSVParserBuilder()
@@ -318,6 +375,8 @@ public class CsvZipToExcelBatch7 {
             List<String[]> rows = reader.readAll();
             int startRow = 28; // Excel 기준 29행
             int startCol = 1;  // Excel C열 (index 1)
+            String csvValue = "";
+            boolean isSomethingWrongFile = false;
 
             DataFormat format = wb.createDataFormat();
 
@@ -332,20 +391,26 @@ public class CsvZipToExcelBatch7 {
             for (int i = 2; i < rows.size(); i++) {
                 String[] row = rows.get(i);
 
-                if (row.length < 10) {
-                    System.out.printf("⚠️"+csvFile.getName()+"파일 ⚠️ Skipping row at index %d: too short (length = %d)%n", i, row.length);
-                    continue;
-                }
-
                 String campaign = row[0].replaceAll("\"", "").trim();
                 if (!"플레이스".equals(campaign)) continue;
 
                 Row excelRow = sheet.getRow(startRow);
                 if (excelRow == null) excelRow = sheet.createRow(startRow);
 
-                for (int j = 0; j < 10; j++) {
+                for (int j = 0; j <= 9; j++) {
                     Cell cell = excelRow.createCell(startCol + j);
-                    String val = row[j].replace(",", "").trim();
+
+                    //row의 크기가 가변적이여서 0으로 처리
+                    if (row.length < 9 && j >= row.length) {
+                        if(!isSomethingWrongFile){
+                            linkedHashSet.add(csvFile.getName());
+                        }
+                        csvValue = "0";
+                    } else {
+                        csvValue = row[j];
+                    }
+                    String val = csvValue.replace(",", "").trim();
+
 
                     try {
                         double num = Double.parseDouble(val);
