@@ -17,6 +17,8 @@ import java.io.*;
 import java.nio.charset.Charset;
 import java.util.*;
 
+// todo: xlxm -> xlsx 작업 필요
+// todo: 경로 변경 작업 필요
 // 일자별 요일별 파워링크까지 한번에 동작
 public class CsvZipToExcelBatch7 {
 
@@ -197,7 +199,7 @@ public class CsvZipToExcelBatch7 {
     }
 
     public static void writeTimeSheet(Sheet sheet, File csvFile, Workbook wb) throws IOException, CsvException {
-        System.out.println("요일별 작업중 csv file name = " + csvFile);
+        System.out.println("시간별 작업중 csv file name = " + csvFile);
         String encoding = detectEncoding(csvFile);
         try (CSVReader reader = new CSVReader(
                 new InputStreamReader(new FileInputStream(csvFile), Charset.forName(encoding)))) {
@@ -210,7 +212,10 @@ public class CsvZipToExcelBatch7 {
 
             // 일반 서식
             CellStyle generalStyle = wb.createCellStyle();
-            generalStyle.setDataFormat(format.getFormat("General"));
+            generalStyle.setBorderTop(BorderStyle.THIN);
+            generalStyle.setBorderBottom(BorderStyle.THIN);
+            generalStyle.setBorderLeft(BorderStyle.THIN);
+            generalStyle.setBorderRight(BorderStyle.THIN);
 
             // 회계 서식
             CellStyle accountingStyle = wb.createCellStyle();
@@ -241,8 +246,10 @@ public class CsvZipToExcelBatch7 {
 
                     try {
                         cell.setCellValue(Double.parseDouble(val.replace(",", "")));
+                        cell.setCellStyle(generalStyle);
                     } catch (NumberFormatException e) {
                         cell.setCellValue(val);  // 원본 텍스트 그대로
+                        cell.setCellStyle(generalStyle);
                     }
                 }
                 startRow++;
@@ -262,7 +269,10 @@ public class CsvZipToExcelBatch7 {
 
             // 일반 서식
             CellStyle generalStyle = wb.createCellStyle();
-            generalStyle.setDataFormat(format.getFormat("General"));
+            generalStyle.setBorderTop(BorderStyle.THIN);
+            generalStyle.setBorderBottom(BorderStyle.THIN);
+            generalStyle.setBorderLeft(BorderStyle.THIN);
+            generalStyle.setBorderRight(BorderStyle.THIN);
 
             // 회계 서식
             CellStyle accountingStyle = wb.createCellStyle();
@@ -294,8 +304,10 @@ public class CsvZipToExcelBatch7 {
 
                     try {
                         cell.setCellValue(Double.parseDouble(val.replace(",", "")));
+                        cell.setCellStyle(generalStyle);
                     } catch (NumberFormatException e) {
                         cell.setCellValue(val);  // 원본 텍스트 그대로
+                        cell.setCellStyle(generalStyle);
                     }
                 }
                 startRow++;
@@ -322,6 +334,11 @@ public class CsvZipToExcelBatch7 {
             int startCol = 1;  // Excel B열
             String csvValue = "";
             boolean isSomethingWrongFile = false;
+            CellStyle generalStyle = wb.createCellStyle();
+            generalStyle.setBorderTop(BorderStyle.THIN);
+            generalStyle.setBorderBottom(BorderStyle.THIN);
+            generalStyle.setBorderLeft(BorderStyle.THIN);
+            generalStyle.setBorderRight(BorderStyle.THIN);
 
             for (int i = 2; i < rows.size(); i++) {
                 String[] row = rows.get(i);
@@ -347,8 +364,10 @@ public class CsvZipToExcelBatch7 {
 
                     try {
                         cell.setCellValue(Double.parseDouble(val.replace(",", "")));
+                        cell.setCellStyle(generalStyle);
                     } catch (NumberFormatException e) {
                         cell.setCellValue(val);  // 원본 텍스트 그대로
+                        cell.setCellStyle(generalStyle);
                     }
 
                 }
@@ -382,7 +401,10 @@ public class CsvZipToExcelBatch7 {
 
             // 일반 서식
             CellStyle generalStyle = wb.createCellStyle();
-            generalStyle.setDataFormat(format.getFormat("General"));
+            generalStyle.setBorderTop(BorderStyle.THIN);
+            generalStyle.setBorderBottom(BorderStyle.THIN);
+            generalStyle.setBorderLeft(BorderStyle.THIN);
+            generalStyle.setBorderRight(BorderStyle.THIN);
 
             // 회계 서식
             CellStyle accountingStyle = wb.createCellStyle();
@@ -415,9 +437,11 @@ public class CsvZipToExcelBatch7 {
                     try {
                         double num = Double.parseDouble(val);
                         cell.setCellValue(num);
+                        cell.setCellStyle(generalStyle);
 
                     } catch (NumberFormatException e) {
                         cell.setCellValue(val);
+                        cell.setCellStyle(generalStyle);
                     }
                 }
 
@@ -442,6 +466,4 @@ public class CsvZipToExcelBatch7 {
         return encoding != null ? encoding : "EUC-KR";
     }
 
-    // 🔁 글자 색상을 흰색으로 바꾸고 싶다면 아래처럼 변경하세요:
-    // greenFont.setColor(IndexedColors.WHITE.getIndex());
 }
