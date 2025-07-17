@@ -26,6 +26,7 @@ public class CsvZipToExcelBatch2 {
 
     static LinkedHashSet linkedHashSet = new LinkedHashSet();
 
+    //TODO: VM PATH -Djacob.dll.path=C:/dll/jacob-1.21-x64.dll
     public static void main(String[] args) throws Exception {
         File zipFile = new File("src/main/java/inputCSVZip/archives.zip");
         File unzipDir = new File("src/main/java/unzipped");
@@ -482,35 +483,40 @@ public class CsvZipToExcelBatch2 {
         }
 
         ActiveXComponent excel = new ActiveXComponent("Excel.Application");
+
         try {
             excel.setProperty("Visible", false);
             Dispatch workbooks = excel.getProperty("Workbooks").toDispatch();
 
             File[] xlsmFiles = inputDir.listFiles((dir, name) -> name.endsWith(".xlsm"));
             if (xlsmFiles == null || xlsmFiles.length == 0) {
-                System.out.println("⚠️ 변환할 .xlsm 파일이 없습니다.");
+                System.out.println("⚠️ .xlsm 파일 없음: " + inputDir.getAbsolutePath());
                 return;
             }
 
             for (File xlsmFile : xlsmFiles) {
-                try {
-                    System.out.println("▶ VBA 실행 중: " + xlsmFile.getName());
+                String fileName = xlsmFile.getName();
+                System.out.println("▶ 처리 중: " + fileName);
 
+                try {
+                    // 1. 열기
                     Dispatch workbook = Dispatch.call(workbooks, "Open", xlsmFile.getAbsolutePath()).toDispatch();
 
-                    // Workbook_Open 또는 명시적 매크로 호출
-                    Dispatch.call(excel, "Run", "Workbook_Open");
+                    // 2. VBA 매크로 실행
+                    Dispatch.call(excel, "Run", "RunMacroManually");  // ❗ 여기에 Sub 이름
 
-                    String outputFileName = xlsmFile.getName().replace(".xlsm", ".xlsx");
-                    File outputFile = new File(outputDir, outputFileName);
+                    // 3. .xlsx로 저장 (형식 코드 51 = xlOpenXMLWorkbook)
+                    String outputName = fileName.replace(".xlsm", ".xlsx");
+                    File outputFile = new File(outputDir, outputName);
+                    Dispatch.call(workbook, "SaveAs", outputFile.getAbsolutePath(), 51);
 
-                    Dispatch.call(workbook, "SaveAs", outputFile.getAbsolutePath(), 51); // 51 = xlOpenXMLWorkbook
-
+                    // 4. 닫기
                     Dispatch.call(workbook, "Close", false);
 
                     System.out.println("✅ 저장 완료: " + outputFile.getAbsolutePath());
+
                 } catch (Exception e) {
-                    System.err.println("❌ 처리 실패: " + xlsmFile.getName());
+                    System.err.println("❌ 처리 실패: " + fileName);
                     e.printStackTrace();
                 }
             }
