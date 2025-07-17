@@ -1,5 +1,3 @@
-package me.hwangjoonsoung.automation;
-
 import com.opencsv.CSVParser;
 import com.opencsv.CSVParserBuilder;
 import com.opencsv.CSVReader;
@@ -7,7 +5,6 @@ import com.opencsv.CSVReaderBuilder;
 import com.opencsv.exceptions.CsvException;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipArchiveInputStream;
-import org.apache.commons.compress.harmony.pack200.NewAttribute;
 import org.apache.commons.io.IOUtils;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -20,15 +17,15 @@ import java.util.*;
 // todo: xlxm -> xlsx 작업 필요
 // todo: 경로 변경 작업 필요
 // 일자별 요일별 파워링크까지 한번에 동작
-public class CsvZipToExcelBatch7 {
+public class CsvZipToExcelBatch {
 
     static LinkedHashSet linkedHashSet = new LinkedHashSet();
 
     public static void main(String[] args) throws Exception {
-        File zipFile = new File("src/main/java/me/hwangjoonsoung/automation/inputCSVZip/archives.zip");
-        File unzipDir = new File("build/unzipped_place");
-        File templateFile = new File("src/main/java/me/hwangjoonsoung/automation/basedExcelFile/06월 키워드보고서.xlsm");
-        File outputDir = new File("build/output_place");
+        File zipFile = new File("src/main/java/inputCSVZip/archives.zip");
+        File unzipDir = new File("src/main/java/unzipped");
+        File templateFile = new File("src/main/java/basedExcelFile/06월 키워드보고서.xlsm");
+        File outputDir = new File("src/main/java/output");
 
         if (!outputDir.exists()) outputDir.mkdirs();
 
@@ -84,9 +81,9 @@ public class CsvZipToExcelBatch7 {
 
     public static void processOneSet(File dailyCsv, File timeCsv, String templatePath, File outputFile) throws Exception {
         String baseName = outputFile.getName().replace("06월_키워드보고서_", "").replace(".xlsm", "");
-        File powerlinkCsv = new File("build/unzipped_place/파워링크보고서," + baseName + ".csv");
-        File shoppingCsv = new File("build/unzipped_place/쇼핑검색보고서," + baseName + ".csv");
-        File placeCsv = new File("build/unzipped_place/플레이스보고서," + baseName + ".csv");
+        File powerlinkCsv = new File("src/main/java/unzipped/파워링크보고서," + baseName + ".csv");
+        File shoppingCsv = new File("src/main/java/unzipped/쇼핑검색보고서," + baseName + ".csv");
+        File placeCsv = new File("src/main/java/unzipped/플레이스보고서," + baseName + ".csv");
         FileInputStream fis = new FileInputStream(templatePath);
         Workbook workbook = new XSSFWorkbook(fis);
 
