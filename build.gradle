@@ -22,6 +22,9 @@ dependencies {
 
     // OpenCSV
     implementation 'com.opencsv:opencsv:5.7.1'
+
+    implementation files('libs/jacob.jar')
+
 }
 
 test {
