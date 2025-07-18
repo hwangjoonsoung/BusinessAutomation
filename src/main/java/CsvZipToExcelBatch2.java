@@ -25,8 +25,7 @@ import java.util.Set;
 public class CsvZipToExcelBatch2 {
 
     static LinkedHashSet linkedHashSet = new LinkedHashSet();
-
-    //TODO: VM PATH -Djacob.dll.path=C:/dll/jacob-1.21-x64.dll
+    //TODO: VM PATH -Djacob.dll.path=C:/Users/HJS/IdeaProjects/BusinessAutomation/dll/jacob-1.21-x64.dll
     public static void main(String[] args) throws Exception {
         File zipFile = new File("src/main/java/inputCSVZip/archives.zip");
         File unzipDir = new File("src/main/java/unzipped");
@@ -39,7 +38,7 @@ public class CsvZipToExcelBatch2 {
         processAllCsvSet(unzipDir, templateFile.getAbsolutePath(), outputDir);
 
         // ✅ VBA 실행 후 xlsx 저장
-        runVbaAndSaveAsXlsxBatch(outputDir, outputDir);
+//        runVbaAndSaveAsXlsxBatch(outputDir, outputDir);
 
         System.out.println("===========================================\n뭔가 이상한 파일들 : " + linkedHashSet);
     }
@@ -131,6 +130,10 @@ public class CsvZipToExcelBatch2 {
             if (placeSheet != null) workbook.removeSheetAt(workbook.getSheetIndex(placeSheet));
         }
         writeCoverSheet(workbook, baseName);
+
+
+        // ✅ 추가된 핵심 한 줄: 수식 강제 재계산 설정
+        workbook.setForceFormulaRecalculation(true);
 
         try (FileOutputStream fos = new FileOutputStream(outputFile)) {
             workbook.write(fos);
