@@ -7,7 +7,6 @@ build/
 !**/src/test/**/build/
 /src/main/java/output/
 /src/main/java/unzipped/
-/src/main/java/inputCSVZip/
 /docs/
 /out/
 
