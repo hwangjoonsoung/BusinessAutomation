@@ -19,13 +19,9 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-// todo: xlxm -> xlsx 작업 필요
-// todo: 경로 변경 작업 필요
-// 일자별 요일별 파워링크까지 한번에 동작
 public class CsvZipToExcelBatch2 {
 
     static LinkedHashSet linkedHashSet = new LinkedHashSet();
-    //TODO: VM PATH -Djacob.dll.path=C:/Users/HJS/IdeaProjects/BusinessAutomation/dll/jacob-1.21-x64.dll
     public static void main(String[] args) throws Exception {
         File zipFile = new File("src/main/java/inputCSVZip/archives.zip");
         File unzipDir = new File("src/main/java/unzipped");
@@ -36,9 +32,6 @@ public class CsvZipToExcelBatch2 {
 
         extractZip(zipFile, unzipDir);
         processAllCsvSet(unzipDir, templateFile.getAbsolutePath(), outputDir);
-
-        // ✅ VBA 실행 후 xlsx 저장
-//        runVbaAndSaveAsXlsxBatch(outputDir, outputDir);
 
         System.out.println("===========================================\n뭔가 이상한 파일들 : " + linkedHashSet);
     }
