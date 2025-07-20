@@ -9,6 +9,7 @@ build/
 /src/main/java/unzipped/
 /src/main/java/inputCSVZip/
 /docs/
+/out/
 
 ### STS ###
 .apt_generated
