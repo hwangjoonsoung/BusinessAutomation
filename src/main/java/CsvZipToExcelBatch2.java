@@ -29,7 +29,7 @@ public class CsvZipToExcelBatch2 {
     public static void main(String[] args) throws Exception {
         File zipFile = new File("src/main/java/inputCSVZip/archives.zip");
         File unzipDir = new File("src/main/java/unzipped");
-        File templateFile = new File("src/main/java/basedExcelFile/06월 키워드보고서.xlsm");
+        File templateFile = new File("src/main/java/basedExcelFile/06월 키워드보고서.xlsx");
         File outputDir = new File("src/main/java/output");
 
         if (!outputDir.exists()) outputDir.mkdirs();
@@ -74,7 +74,7 @@ public class CsvZipToExcelBatch2 {
         for (String id : idSet) {
             File daily = new File(folder, "일별보고서," + id + ".csv");
             File time = new File(folder, "요일별보고서," + id + ".csv");
-            File outputFile = new File(outputDir, "06월_키워드보고서_" + id + ".xlsm");
+            File outputFile = new File(outputDir, "06월_키워드보고서_" + id + ".xlsx");
 
 //            if(!id.equals("bogangwood_naver")){
 //                continue;
@@ -88,7 +88,7 @@ public class CsvZipToExcelBatch2 {
     }
 
     public static void processOneSet(File dailyCsv, File timeCsv, String templatePath, File outputFile) throws Exception {
-        String baseName = outputFile.getName().replace("06월_키워드보고서_", "").replace(".xlsm", "");
+        String baseName = outputFile.getName().replace("06월_키워드보고서_", "").replace(".xlsx", "");
         File powerlinkCsv = new File("src/main/java/unzipped/파워링크보고서," + baseName + ".csv");
         File shoppingCsv = new File("src/main/java/unzipped/쇼핑검색보고서," + baseName + ".csv");
         File placeCsv = new File("src/main/java/unzipped/플레이스보고서," + baseName + ".csv");
@@ -491,25 +491,25 @@ public class CsvZipToExcelBatch2 {
             excel.setProperty("Visible", false);
             Dispatch workbooks = excel.getProperty("Workbooks").toDispatch();
 
-            File[] xlsmFiles = inputDir.listFiles((dir, name) -> name.endsWith(".xlsm"));
-            if (xlsmFiles == null || xlsmFiles.length == 0) {
-                System.out.println("⚠️ .xlsm 파일 없음: " + inputDir.getAbsolutePath());
+            File[] xlsxFiles = inputDir.listFiles((dir, name) -> name.endsWith(".xlsx"));
+            if (xlsxFiles == null || xlsxFiles.length == 0) {
+                System.out.println("⚠️ .xlsx 파일 없음: " + inputDir.getAbsolutePath());
                 return;
             }
 
-            for (File xlsmFile : xlsmFiles) {
-                String fileName = xlsmFile.getName();
+            for (File xlsxFile : xlsxFiles) {
+                String fileName = xlsxFile.getName();
                 System.out.println("▶ 처리 중: " + fileName);
 
                 try {
                     // 1. 열기
-                    Dispatch workbook = Dispatch.call(workbooks, "Open", xlsmFile.getAbsolutePath()).toDispatch();
+                    Dispatch workbook = Dispatch.call(workbooks, "Open", xlsxFile.getAbsolutePath()).toDispatch();
 
                     // 2. VBA 매크로 실행
                     Dispatch.call(excel, "Run", "RunMacroManually");  // ❗ 여기에 Sub 이름
 
                     // 3. .xlsx로 저장 (형식 코드 51 = xlOpenXMLWorkbook)
-                    String outputName = fileName.replace(".xlsm", ".xlsx");
+                    String outputName = fileName.replace(".xlsx", ".xlsx");
                     File outputFile = new File(outputDir, outputName);
                     Dispatch.call(workbook, "SaveAs", outputFile.getAbsolutePath(), 51);
 
