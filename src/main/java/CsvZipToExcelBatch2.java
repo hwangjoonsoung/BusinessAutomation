@@ -34,6 +34,13 @@ public class CsvZipToExcelBatch2 {
         processAllCsvSet(unzipDir, templateFile.getAbsolutePath(), outputDir);
 
         System.out.println("===========================================\n뭔가 이상한 파일들 : " + linkedHashSet);
+
+        // 파일 자동 지워짐
+        File[] files = unzipDir.listFiles();
+        for (File file : files) {
+            file.delete();
+        }
+        boolean delete = unzipDir.delete();
     }
 
     public static void extractZip(File zipFile, File destDir) throws IOException {
