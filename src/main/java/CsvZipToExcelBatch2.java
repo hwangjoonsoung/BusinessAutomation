@@ -184,13 +184,17 @@ public class CsvZipToExcelBatch2 {
                 for (int j = 0; j < 9; j++) {
                     Cell cell = excelRow.createCell(startCol + j);
 
-                    if (row.length < 9 && j >= row.length) {
-                        if(!isSomethingWrongFile){
-                            linkedHashSet.add(csvFile.getName());
+                    try {
+                        if (row.length < 9 && j >= row.length) {
+                            if (!isSomethingWrongFile) {
+                                linkedHashSet.add(csvFile.getName());
+                            }
+                            csvValue = "0";
+                        } else {
+                            csvValue = row[j];
                         }
-                        csvValue = "0";
-                    } else {
-                        csvValue = row[j];
+                    } catch (ArrayIndexOutOfBoundsException e) {
+                        linkedHashSet.add(csvFile.getName());
                     }
                     String val = csvValue.trim();
 
@@ -221,6 +225,7 @@ public class CsvZipToExcelBatch2 {
 
             // 일반 서식
             CellStyle generalStyle = wb.createCellStyle();
+            generalStyle.setDataFormat(format.getFormat("#,##0"));
             generalStyle.setBorderTop(BorderStyle.THIN);
             generalStyle.setBorderBottom(BorderStyle.THIN);
             generalStyle.setBorderLeft(BorderStyle.THIN);
@@ -241,15 +246,18 @@ public class CsvZipToExcelBatch2 {
 
                 for (int j = 0; j < 9; j++) {
                     Cell cell = excelRow.createCell(startCol + j);
-
-                    //row의 크기가 가변적이여서 0으로 처리
-                    if (row.length < 9 && j >= row.length) {
-                        if(!isSomethingWrongFile){
-                            linkedHashSet.add(csvFile.getName());
+                    try {
+                        //row의 크기가 가변적이여서 0으로 처리
+                        if (row.length < 9 && j >= row.length) {
+                            if (!isSomethingWrongFile) {
+                                linkedHashSet.add(csvFile.getName());
+                            }
+                            csvValue = "0";
+                        } else {
+                            csvValue = row[j];
                         }
-                        csvValue = "0";
-                    } else {
-                        csvValue = row[j];
+                    } catch (ArrayIndexOutOfBoundsException e) {
+                        linkedHashSet.add(csvFile.getName());
                     }
                     String val = csvValue.trim();
 
@@ -278,6 +286,7 @@ public class CsvZipToExcelBatch2 {
 
             // 일반 서식
             CellStyle generalStyle = wb.createCellStyle();
+            generalStyle.setDataFormat(format.getFormat("#,##0"));
             generalStyle.setBorderTop(BorderStyle.THIN);
             generalStyle.setBorderBottom(BorderStyle.THIN);
             generalStyle.setBorderLeft(BorderStyle.THIN);
@@ -299,15 +308,18 @@ public class CsvZipToExcelBatch2 {
                 for (int j = 3; j <= 13; j++) {
                     Cell cell = excelRow.createCell(startCol + (j - 3));
 
-                    //row의 크기가 가변적이여서 0으로 처리
-                    if (row.length < 13 && j >= row.length) {
-
-                        if(!isSomethingWrongFile){
-                            linkedHashSet.add(csvFile.getName());
+                    try {
+                        //row의 크기가 가변적이여서 0으로 처리
+                        if (row.length < 13 && j >= row.length) {
+                            if (!isSomethingWrongFile) {
+                                linkedHashSet.add(csvFile.getName());
+                            }
+                            csvValue = "0";
+                        } else {
+                            csvValue = row[j];
                         }
-                        csvValue = "0";
-                    } else {
-                        csvValue = row[j];
+                    } catch (ArrayIndexOutOfBoundsException e) {
+                        linkedHashSet.add(csvFile.getName());
                     }
                     String val = csvValue.trim();
 
@@ -342,8 +354,10 @@ public class CsvZipToExcelBatch2 {
             int startRow = 28; // Excel 기준 29행
             int startCol = 1;  // Excel B열
             String csvValue = "";
+            DataFormat format = wb.createDataFormat();
             boolean isSomethingWrongFile = false;
             CellStyle generalStyle = wb.createCellStyle();
+            generalStyle.setDataFormat(format.getFormat("#,##0"));
             generalStyle.setBorderTop(BorderStyle.THIN);
             generalStyle.setBorderBottom(BorderStyle.THIN);
             generalStyle.setBorderLeft(BorderStyle.THIN);
@@ -359,15 +373,18 @@ public class CsvZipToExcelBatch2 {
                 for (int j = 1; j <= 11; j++) {
                     Cell cell = excelRow.createCell(startCol + (j - 1));
 
-                    //row의 크기가 가변적이여서 0으로 처리
-                    if (row.length < 11 && j >= row.length) {
-
-                        if(!isSomethingWrongFile){
-                            linkedHashSet.add(csvFile.getName());
+                    try {
+                        //row의 크기가 가변적이여서 0으로 처리
+                        if (row.length < 11 && j >= row.length) {
+                            if (!isSomethingWrongFile) {
+                                linkedHashSet.add(csvFile.getName());
+                            }
+                            csvValue = "0";
+                        } else {
+                            csvValue = row[j];
                         }
-                        csvValue = "0";
-                    } else {
-                        csvValue = row[j];
+                    } catch (ArrayIndexOutOfBoundsException e) {
+                        linkedHashSet.add(csvFile.getName());
                     }
                     String val = csvValue.replace(",", "").trim();
 
@@ -410,6 +427,7 @@ public class CsvZipToExcelBatch2 {
 
             // 일반 서식
             CellStyle generalStyle = wb.createCellStyle();
+            generalStyle.setDataFormat(format.getFormat("#,##0"));
             generalStyle.setBorderTop(BorderStyle.THIN);
             generalStyle.setBorderBottom(BorderStyle.THIN);
             generalStyle.setBorderLeft(BorderStyle.THIN);
@@ -431,14 +449,18 @@ public class CsvZipToExcelBatch2 {
                 for (int j = 0; j <= 9; j++) {
                     Cell cell = excelRow.createCell(startCol + j);
 
-                    //row의 크기가 가변적이여서 0으로 처리
-                    if (row.length < 9 && j >= row.length) {
-                        if(!isSomethingWrongFile){
-                            linkedHashSet.add(csvFile.getName());
+                    try {
+                        //row의 크기가 가변적이여서 0으로 처리
+                        if (row.length < 9 && j >= row.length) {
+                            if (!isSomethingWrongFile) {
+                                linkedHashSet.add(csvFile.getName());
+                            }
+                            csvValue = "0";
+                        } else {
+                            csvValue = row[j];
                         }
-                        csvValue = "0";
-                    } else {
-                        csvValue = row[j];
+                    } catch (ArrayIndexOutOfBoundsException e) {
+                        linkedHashSet.add(csvFile.getName());
                     }
                     String val = csvValue.replace(",", "").trim();
 
