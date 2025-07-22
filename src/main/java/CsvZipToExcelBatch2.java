@@ -231,6 +231,12 @@ public class CsvZipToExcelBatch2 {
             generalStyle.setBorderLeft(BorderStyle.THIN);
             generalStyle.setBorderRight(BorderStyle.THIN);
 
+            CellStyle generalStyle2 = wb.createCellStyle();
+            generalStyle2.setBorderTop(BorderStyle.THIN);
+            generalStyle2.setBorderBottom(BorderStyle.THIN);
+            generalStyle2.setBorderLeft(BorderStyle.THIN);
+            generalStyle2.setBorderRight(BorderStyle.THIN);
+
             // 회계 서식
             CellStyle accountingStyle = wb.createCellStyle();
             accountingStyle.setDataFormat((short) 44);
@@ -263,10 +269,18 @@ public class CsvZipToExcelBatch2 {
 
                     try {
                         cell.setCellValue(Double.parseDouble(val.replace(",", "")));
-                        cell.setCellStyle(generalStyle);
+                        if(j == 5 || j == 6){
+                            cell.setCellStyle(generalStyle);
+                        }else{
+                            cell.setCellStyle(generalStyle2);
+                        }
                     } catch (NumberFormatException e) {
                         cell.setCellValue(val);  // 원본 텍스트 그대로
-                        cell.setCellStyle(generalStyle);
+                        if(j == 5 || j == 6){
+                            cell.setCellStyle(generalStyle);
+                        }else{
+                            cell.setCellStyle(generalStyle2);
+                        }
                     }
                 }
                 startRow++;
@@ -291,6 +305,12 @@ public class CsvZipToExcelBatch2 {
             generalStyle.setBorderBottom(BorderStyle.THIN);
             generalStyle.setBorderLeft(BorderStyle.THIN);
             generalStyle.setBorderRight(BorderStyle.THIN);
+
+            CellStyle generalStyle2 = wb.createCellStyle();
+            generalStyle2.setBorderTop(BorderStyle.THIN);
+            generalStyle2.setBorderBottom(BorderStyle.THIN);
+            generalStyle2.setBorderLeft(BorderStyle.THIN);
+            generalStyle2.setBorderRight(BorderStyle.THIN);
 
             // 회계 서식
             CellStyle accountingStyle = wb.createCellStyle();
@@ -325,10 +345,18 @@ public class CsvZipToExcelBatch2 {
 
                     try {
                         cell.setCellValue(Double.parseDouble(val.replace(",", "")));
-                        cell.setCellStyle(generalStyle);
+                        if(j == 6 || j == 7 || j ==8 ){
+                            cell.setCellStyle(generalStyle);
+                        }else{
+                            cell.setCellStyle(generalStyle2);
+                        }
                     } catch (NumberFormatException e) {
                         cell.setCellValue(val);  // 원본 텍스트 그대로
-                        cell.setCellStyle(generalStyle);
+                        if(j == 6 || j == 7 || j ==8 ){
+                            cell.setCellStyle(generalStyle);
+                        }else{
+                            cell.setCellStyle(generalStyle2);
+                        }
                     }
                 }
                 startRow++;
@@ -356,12 +384,19 @@ public class CsvZipToExcelBatch2 {
             String csvValue = "";
             DataFormat format = wb.createDataFormat();
             boolean isSomethingWrongFile = false;
+
             CellStyle generalStyle = wb.createCellStyle();
             generalStyle.setDataFormat(format.getFormat("#,##0"));
             generalStyle.setBorderTop(BorderStyle.THIN);
             generalStyle.setBorderBottom(BorderStyle.THIN);
             generalStyle.setBorderLeft(BorderStyle.THIN);
             generalStyle.setBorderRight(BorderStyle.THIN);
+
+            CellStyle generalStyle2 = wb.createCellStyle();
+            generalStyle2.setBorderTop(BorderStyle.THIN);
+            generalStyle2.setBorderBottom(BorderStyle.THIN);
+            generalStyle2.setBorderLeft(BorderStyle.THIN);
+            generalStyle2.setBorderRight(BorderStyle.THIN);
 
             for (int i = 2; i < rows.size(); i++) {
                 String[] row = rows.get(i);
@@ -390,10 +425,18 @@ public class CsvZipToExcelBatch2 {
 
                     try {
                         cell.setCellValue(Double.parseDouble(val.replace(",", "")));
-                        cell.setCellStyle(generalStyle);
+                        if(j == 4 || j == 5 || j ==6 ){
+                            cell.setCellStyle(generalStyle);
+                        }else{
+                            cell.setCellStyle(generalStyle2);
+                        }
                     } catch (NumberFormatException e) {
                         cell.setCellValue(val);  // 원본 텍스트 그대로
-                        cell.setCellStyle(generalStyle);
+                        if(j == 4 || j == 5 || j ==6 ){
+                            cell.setCellStyle(generalStyle);
+                        }else{
+                            cell.setCellStyle(generalStyle2);
+                        }
                     }
 
                 }
@@ -433,6 +476,13 @@ public class CsvZipToExcelBatch2 {
             generalStyle.setBorderLeft(BorderStyle.THIN);
             generalStyle.setBorderRight(BorderStyle.THIN);
 
+            // 일반 서식
+            CellStyle generalStyle2 = wb.createCellStyle();
+            generalStyle2.setBorderTop(BorderStyle.THIN);
+            generalStyle2.setBorderBottom(BorderStyle.THIN);
+            generalStyle2.setBorderLeft(BorderStyle.THIN);
+            generalStyle2.setBorderRight(BorderStyle.THIN);
+
             // 회계 서식
             CellStyle accountingStyle = wb.createCellStyle();
             accountingStyle.setDataFormat((short) 44);
@@ -468,11 +518,18 @@ public class CsvZipToExcelBatch2 {
                     try {
                         double num = Double.parseDouble(val);
                         cell.setCellValue(num);
-                        cell.setCellStyle(generalStyle);
-
+                        if(j == 4 || j == 5 || j ==6 ){
+                            cell.setCellStyle(generalStyle);
+                        }else{
+                            cell.setCellStyle(generalStyle2);
+                        }
                     } catch (NumberFormatException e) {
                         cell.setCellValue(val);
-                        cell.setCellStyle(generalStyle);
+                        if(j == 4 || j == 5 || j ==6 ){
+                            cell.setCellStyle(generalStyle);
+                        }else{
+                            cell.setCellStyle(generalStyle2);
+                        }
                     }
                 }
 
