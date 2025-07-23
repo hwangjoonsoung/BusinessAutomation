@@ -23,7 +23,7 @@ public class CsvZipToExcelBatch2 {
 
     static LinkedHashSet linkedHashSet = new LinkedHashSet();
     public static void main(String[] args) throws Exception {
-        File zipFile = new File("src/main/java/inputCSVZip/archives.zip");
+        File zipFile = new File("src/main/java/inputCSVZip/csv.zip");
         File unzipDir = new File("src/main/java/unzipped");
         File templateFile = new File("src/main/java/basedExcelFile/06월 키워드보고서.xlsx");
         File outputDir = new File("src/main/java/output");
@@ -76,7 +76,7 @@ public class CsvZipToExcelBatch2 {
             File time = new File(folder, "요일별보고서," + id + ".csv");
             File outputFile = new File(outputDir, "06월_키워드보고서_" + id + ".xlsx");
 
-//            if(!id.equals("bogangwood_naver")){
+//            if(!id.equals("kjss2106_naver")){
 //                continue;
 //            }
             if (daily.exists()) {
@@ -269,17 +269,27 @@ public class CsvZipToExcelBatch2 {
 
                     try {
                         cell.setCellValue(Double.parseDouble(val.replace(",", "")));
-                        if(j == 5 || j == 6){
-                            cell.setCellStyle(generalStyle);
-                        }else{
+                        // todo: 일반으로 하는건 그냥 두고 자리수 표시 해야하는걸 else로 적용
+                        /*
+                        * D : 2
+                        * E : 3
+                        * F : 4
+                        * G : 5
+                        * H : 6
+                        * I : 7
+                        * J : 8
+                        * */
+                        if(j == 3 || j == 4){
                             cell.setCellStyle(generalStyle2);
+                        }else{
+                            cell.setCellStyle(generalStyle);
                         }
                     } catch (NumberFormatException e) {
                         cell.setCellValue(val);  // 원본 텍스트 그대로
-                        if(j == 5 || j == 6){
-                            cell.setCellStyle(generalStyle);
-                        }else{
+                        if(j == 3 || j == 4){
                             cell.setCellStyle(generalStyle2);
+                        }else{
+                            cell.setCellStyle(generalStyle);
                         }
                     }
                 }
@@ -345,17 +355,17 @@ public class CsvZipToExcelBatch2 {
 
                     try {
                         cell.setCellValue(Double.parseDouble(val.replace(",", "")));
-                        if(j == 6 || j == 7 || j ==8 ){
-                            cell.setCellStyle(generalStyle);
-                        }else{
+                        if(j == 9 || j == 10 || j ==11 ){
                             cell.setCellStyle(generalStyle2);
+                        }else{
+                            cell.setCellStyle(generalStyle);
                         }
                     } catch (NumberFormatException e) {
                         cell.setCellValue(val);  // 원본 텍스트 그대로
-                        if(j == 6 || j == 7 || j ==8 ){
-                            cell.setCellStyle(generalStyle);
-                        }else{
+                        if(j == 9 || j == 10 || j ==11 ){
                             cell.setCellStyle(generalStyle2);
+                        }else{
+                            cell.setCellStyle(generalStyle);
                         }
                     }
                 }
@@ -425,17 +435,17 @@ public class CsvZipToExcelBatch2 {
 
                     try {
                         cell.setCellValue(Double.parseDouble(val.replace(",", "")));
-                        if(j == 4 || j == 5 || j ==6 ){
-                            cell.setCellStyle(generalStyle);
-                        }else{
+                        if(j == 7 || j == 8 || j ==9 ){
                             cell.setCellStyle(generalStyle2);
+                        }else{
+                            cell.setCellStyle(generalStyle);
                         }
                     } catch (NumberFormatException e) {
                         cell.setCellValue(val);  // 원본 텍스트 그대로
-                        if(j == 4 || j == 5 || j ==6 ){
-                            cell.setCellStyle(generalStyle);
-                        }else{
+                        if(j == 7 || j == 8 || j ==9 ){
                             cell.setCellStyle(generalStyle2);
+                        }else{
+                            cell.setCellStyle(generalStyle);
                         }
                     }
 
@@ -518,17 +528,25 @@ public class CsvZipToExcelBatch2 {
                     try {
                         double num = Double.parseDouble(val);
                         cell.setCellValue(num);
-                        if(j == 4 || j == 5 || j ==6 ){
-                            cell.setCellStyle(generalStyle);
-                        }else{
+                        /*
+                         * F : 4
+                         * G : 5
+                         * H : 6
+                         * I : 7
+                         * J : 8
+                         * K : 9
+                         * */
+                        if(j == 9){
                             cell.setCellStyle(generalStyle2);
+                        }else{
+                            cell.setCellStyle(generalStyle);
                         }
                     } catch (NumberFormatException e) {
                         cell.setCellValue(val);
-                        if(j == 4 || j == 5 || j ==6 ){
-                            cell.setCellStyle(generalStyle);
-                        }else{
+                        if(j == 9){
                             cell.setCellStyle(generalStyle2);
+                        }else{
+                            cell.setCellStyle(generalStyle);
                         }
                     }
                 }
